@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <title>ARM Reader</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body ng-controller="ARMCtrl">
+
+    <!-- Just an image -->
+    <nav class="navbar navbar-light bg-light">
+        <span href="#">
+            <h3 class="text-uppercase font-weight-bold mb-0">
+                ARM Reader
+            </h3>
+            <div>
+                <small class="mt-0">
+                    <i>Filtra un Azure Resource Manager (ARM Template) para despliegues específicos</i>
+                </small>
+            </div>
+        </span>
+    </nav>
+    
+    <div class="container mt-4">
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="df-tab" data-toggle="tab" href="#df" role="tab" aria-controls="df" aria-selected="true">
+                Data Factory ADF
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="logic-tab" data-toggle="tab" href="#logic" role="tab" aria-controls="logic" aria-selected="false">
+                Logic Apps
+            </a>
+          </li>
+        </ul>
+        <div class="tab-content border-top-0 border mb-3" id="myTabContent">
+          <div class="tab-pane fade show active" id="df" role="tabpanel" aria-labelledby="df-tab">
+              
+            <!-- DF -->
+            <div class="container-fluid pt-3">
+                
+                <div class="alert alert-danger" ng-show="content.error != ''">{{content.error}}</div>
+
+                <form class="form">
+                    <div class="form-group">
+                            <label for="title" data-toggle="tooltip" data-placement="top" title="Nombre del pipeline principal">
+                                <b>Nombre del Pipeline ⓘ</b>
+                            </label>
+                            <input  class="form-control" 
+                                    id="title"
+                                    ng-model="content.title"
+                                    ng-change="content.error = ''"
+                                    aria-describedby="content-title"
+                                    placeholder="Nombre del Pipeline a consultar" />
+                        </div>
+                    <div class="form-group">
+                        <label for="content" data-toggle="tooltip" data-placement="top" title="Obtenga el archivo JSON descargandolo directamente en la plataforma ADF en el botón 'Export ARM Template'">
+                            <b>Ingrese el ARM Template ⓘ</b>
+                        </label>
+                        <textarea  
+                                class="form-control" 
+                                id="content"
+                                ng-model="content.value"
+                                ng-change="content.error = ''"
+                                rows="3" 
+                                aria-describedby="content-text">
+                        </textarea>
+                        <small id="content-text" class="form-text text-muted">
+                            Ingresa un JSON válido
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPrincipal" class="d-flex">
+                            <input id="addPrincipal" 
+                                   type="checkbox" 
+                                   class="mr-3" 
+                                   ng-init="content.addPrincipal = true" 
+                                   ng-model="content.addPrincipal">
+                            <b data-toggle="tooltip" data-placement="top" title="Algunas veces el Pipeline orquestador no será necesario, de ser así, no seleccione esta opción">¿Desea incluir el Pipeline principal? ⓘ</b>
+                        </label>
+                        <small id="content-text" class="form-text text-muted">
+                            Si no selecciona esta opción, el Pipeline principal no se agregará a los recursos del ARM
+                        </small>
+                    </div>
+                    <button type="button" ng-click="generar()" class="btn btn-primary">Generar ARM Filtrado</button>
+                </form>
+                
+                <div class="mt-4 mb-3" ng-show="content.pipelinePrincipalParse.length > 0">
+                    <b class="d-block">Resultado filtrado:</b>
+                    <textarea class="mt-3 form-control bg-dark text-white" 
+                        ng-class="valid ? 'border border-success' : 'border border-danger'" 
+                        ng-model="content.resultParse"
+                        rows="20">
+                    </textarea>
+                    <!-- pre class="mt-3 d-block border bg-dark text-white rounded">
+                        {{content.resultParse}}
+                    </pre -->
+                </div>
+                
+                <div class="mt-4 mb-3" ng-show="content.pipelinePrincipalParse.length > 0">
+                    <b class="d-block">Pipeline principal:</b>
+                    <textarea class="mt-3 form-control" 
+                        ng-class="valid ? 'border border-success' : 'border border-danger'" 
+                        ng-model="content.pipelinePrincipalParse"
+                        rows="20">
+                    </textarea>
+                </div>
+
+                <div>
+                    <b class="mt-4 mb-3 d-block">Resultado:</b>
+                    <div class="p-3 mb-3 rounded" ng-class="valid ? 'border border-success' : 'border border-danger'">
+                        <span class="d-block">
+                            <b>Recursos encontrados</b>: {{content.allResources}}
+                        </span>
+                        <span class="d-block">
+                            <b>Recursos obtenidos</b>: {{content.deps.length}}
+                        </span>
+                        <span class="d-block">
+                            <b>Estado del JSON</b>: {{valid}}
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- DF -->
+
+          </div>
+          <div class="tab-pane fade" id="logic" role="tabpanel" aria-labelledby="logic-tab">
+                
+            <!-- LA -->
+            <div class="container-fluid pt-4" ng-controller="ARMCtrl">
+                <p>Pendiente...</p>
+            </div>
+            <!-- LA -->
+
+          </div>
+        </div>
+
+        
+
+    </div>
+
+    <script src="js/jquery-3.3.1.slim.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular/app.js"></script>
+    <script src="js/angular/controllers/ctrl.js"></script>
+    
+</body>
+</html>
